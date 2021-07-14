@@ -1,0 +1,22 @@
+모른겠다면 document로 ㄱㄱ
+
+express - 서버 구축에 필요
+babel   - 최신 자바스크립트 언어를 사용하게 해줌
+nodemon - script가 바뀌었을 때 서버가 재시작하게 도와줌
+morgan  - 좀 더 자세한 middleware
+express.Router - router 세분화에 도움을 주는 객체
+               - url 관리에 도움을 준다
+/:id           - url의 parameter req에 담겨 옮겨진다
+pug            - 간편하게 html을 쓸 수 있게 해준다.
+               - express에서 html을 작성할 수 있게 해준다.
+               - html을 javascript로 컴파일 하여 스크립트언어를 내부에 쓸 수 있다.
+               - include 를 통해 내용을 복붙할 수 있다.
+
+post 와 get 방식
+express.urlencoded - express가 form을 알지 못해서 from의 value가
+                     필요할 경우 이 middleware를 통해 form을 해석할 
+                     수 있도록 해준다
+
+res.render - express의 메소드로 express가 set한 viewengine을 rendering 해준다
+mongodb는 데이터를 json형태(object)로 다루므로 
+데이터의 형태를 다룬 .js파일이 필요하다.(mongoose가 사용하기에 필요)
