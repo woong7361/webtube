@@ -1,7 +1,138 @@
+import User from "../models/user"
+import bcrypt from "bcrypt";
+import fetch from "node-fetch";
 
-export const join = (req,res)=>{
-    res.send("join!");
+export const getJoin = (req,res)=>{
+    res.render("join", {pageTitle: "join"});
 }
+export const postJoin= async (req,res) => {
+    const {name, username, email, password, password2, location} = req.body;
+    if(password !== password2){
+        return res.status(400).render("join",{ //status 400 means badrequest
+            pageTitle: "join",
+            errorMessage: "password does not match",
+        })
+    }
+    const exist = await User.exists({$or: [{username: username}, {email: email}]});
+    if(exist){
+        return res.status(400).render("join",{
+            pageTitle: "join",
+            errorMessage: "this username/email is already taken",
+        })
+    }
+    try{ 
+        await User.create({
+            name: name,
+            username: username,
+            email: email,
+            password: password,
+            location: location,
+        })
+        return res.redirect("/login");
+    }catch(error){
+        return res.status(400).render("join",{
+            pageTitle: "join",
+            errorMessage: error,_message,
+        })
+    }
+}
+export const getLogin = (req,res) => {
+    res.render("login",{pageTitle: "Login"});
+}
+export const postLogin= async(req,res) => {
+    const {username, password} = req.body;
+    const user = await User.findOne({username:username, socialOnly: false});
+    if(!user){
+        return res.status(400).render("login",{
+            pageTitle:"Login",
+            errorMessage: "An account with this username does not exists.",
+        })
+    }
+    const ok = await bcrypt.compare(password,user.password);
+    if(!ok){
+        return res.status(400).render("login",{
+            pageTitle: "Login",
+            errorMessage: "wroong password", 
+        })
+    }
+    req.session.loggedIn=true //add a property to req.session object
+    req.session.user=user;//user means database user
+    
+    return res.redirect("/");
+}
+export const startGithubLogin = (req,res) => {
+    const baseUrl = "https://github.com/login/oauth/authorize";
+    const config = {
+        client_id: process.env.GH_CLIENT,
+        scope: "user:email read:user",
+        allow_signup: false,
+    }
+    const params = new URLSearchParams(config).toString(); //get a GET method url parameter
+    const githubLoginUrl= baseUrl+'?'+params;
+    return res.redirect(githubLoginUrl);
+}
+export const finsithGithubLogin = async(req,res) => {
+    const baseUrl = "https://github.com/login/oauth/access_token";
+    const config = {
+        client_id: process.env.GH_CLIENT,
+        client_secret: process.env.GH_SECRET,
+        code: req.query.code,
+    };
+    const params = new URLSearchParams(config).toString();
+    const finalUrl = baseUrl+'?'+params;
+    const data = await fetch(finalUrl,{
+        method: "POST",
+        headers: {
+            Accept: "application/json"
+        },
+    })
+    const json = await data.json();
+    if("access_token" in json){
+        const {access_token} = json;
+        const apiUrl = "https://api.github.com"
+        const userData = await (
+            await fetch(apiUrl+"/user",{
+            headers: {
+                Authorization: "token "+access_token,
+            },
+        })).json();
+        const emailData = await (
+            await fetch(apiUrl+"/user/emails",{
+            headers: {
+                Authorization: "token "+access_token,
+            },
+        })).json();
+        const emailObj = emailData.find(
+            (emailObj) => emailObj.primary === true && emailObj.verified === true
+        );
+        if(!emailObj){
+            return res.redirect("/login");
+        }
+        let user = await User.findOne({email:emailObj.email});
+        console.log(userData);
+        if(!user){
+            const user = await User.create({
+                avatarUrl: userData.avatar_url,
+                name: userData.name,
+                username:userData.login,
+                email:emailObj.email,
+                password: "",
+                location: userData.location,
+                socialOnly: true,
+            })
+        }
+        req.session.loggedIn = true;
+        req.session.user = user;
+        return res.redirect("/");
+    }else{
+        return res.redirect("/login");
+    }
+}
+export const logout = (req,res) => {
+    req.session.destroy();
+    return res.redirect("/");
+}
+
 
 export const edit = (req,res)=>{
     res.send("edit User");
@@ -10,15 +141,6 @@ export const edit = (req,res)=>{
 export const remove =  (req,res)=>{
     res.send("delete user");
 }
-
-export const login = (req,res) => {
-    res.send("Log In");
-}
-
-export const logout = (req,res) => {
-    res.send("log Out");
-}
-
 export const see = (req,res) => {
     res.send("See User");
 }

@@ -20,3 +20,14 @@ express.urlencoded - express가 form을 알지 못해서 from의 value가
 res.render - express의 메소드로 express가 set한 viewengine을 rendering 해준다
 mongodb는 데이터를 json형태(object)로 다루므로 
 데이터의 형태를 다룬 .js파일이 필요하다.(mongoose가 사용하기에 필요)
+express-ssession - 세션에 대해서 다룰 수 있도록 해준다. it is remember th browser indivisualy
+                 - it helps to get (req.session) object
+
+in response object has locals object(res.locals) is shared with template(html) 
+but it must be declare before router declare
+connect.mongo package - session data is not stored in cookies just session-id is stored
+                        so we use this package to save a session data in database so we 
+                        memory a login after the server shutdown
+
+환경변수 설정(.env file) -if you have a hide a string like database-url use .env file
+                        - using package with dotenv put a variable in process.env from .env file
