@@ -12,7 +12,6 @@ import videoRouter from "./routers/videoRouter";
 import userRouter from "./routers/userRouter";
 import { localsMiddleware } from "./middlewares";
 import apiRouter from "./routers/apiRouter";
-const PORT_NUMBER = 4000;
 
 
 const app = express();
