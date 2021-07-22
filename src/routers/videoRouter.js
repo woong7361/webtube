@@ -6,15 +6,17 @@ import {watch,
         postEdit, 
         postUpload
 } from "../controllers/videocontroller"
+import { protectMiddleware, videoUpload } from "../middlewares";
 
 
 const videoRouter = express.Router();
 
-videoRouter.get("/upload",getUpload);
-videoRouter.post("/upload",postUpload)
+
+videoRouter.get("/upload", protectMiddleware,getUpload);
+videoRouter.post("/upload",protectMiddleware ,videoUpload.single("video") ,postUpload)
 videoRouter.get("/:id([0-9a-f]{24})", watch);
-videoRouter.get("/:id([0-9a-f]{24})/edit", getEdit);
-videoRouter.post("/:id([0-9a-f]{24})/edit", postEdit);
-videoRouter.get("/:id([0-9a-f]{24})/delete", deleteVideo);
+videoRouter.get("/:id([0-9a-f]{24})/edit", protectMiddleware, getEdit);
+videoRouter.post("/:id([0-9a-f]{24})/edit", protectMiddleware, postEdit);
+videoRouter.get("/:id([0-9a-f]{24})/delete", protectMiddleware, deleteVideo);
 
 export default videoRouter;

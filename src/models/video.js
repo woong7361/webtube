@@ -1,7 +1,9 @@
 import  mongoose from "mongoose";
 
 const videoSchema = new mongoose.Schema({
+    owner: {type: mongoose.Schema.Types.ObjectId ,required:true, ref: "User"},
     title: {type: String, required: true, trim: true},
+    fileUrl: {type:String, required: true},
     description: {type: String, required: true, trim: true},
     createdAt: {
         type: Date, 
@@ -9,6 +11,7 @@ const videoSchema = new mongoose.Schema({
         default: Date.now
     },
     hashtags: [{type: String, trim: true}],
+    comments: [{type: mongoose.Schema.Types.ObjectId , ref:"Comment"}],
     meta: {
         views: {type: Number, default: 0, required: true},
         rating: {type: Number, required: true, default: 0}

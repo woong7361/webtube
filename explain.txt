@@ -31,3 +31,7 @@ connect.mongo package - session data is not stored in cookies just session-id is
 
 환경변수 설정(.env file) -if you have a hide a string like database-url use .env file
                         - using package with dotenv put a variable in process.env from .env file
+
+multer package = allow file upload
+
+populate - fill moongoose's objectId

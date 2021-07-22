@@ -1,9 +1,42 @@
-extends base.pug
 
-block content 
-    h3=video.description
-    h3 #{video.meta.rating} rating 
-    h3 #{video.meta.views} #{video.meta.views === 1 ? "view" : "views"}
-    a(href=`${video.id}/edit`) Edit Video &larr;
-    br
-    a(href=`${video.id}/delete`) Delete Video &larr;
+extends base
+
+block content
+    div#videoContainer(data-id=video._id)
+        video(src="/" + video.fileUrl)
+        div#videoControls
+            button#play Play 
+            button#mute Mute 
+            input(type="range" step="0.2" min="0" max="1")#volume
+            div 
+                span#currentTime 00:00 
+                span /  
+                span#totalTime 00:00
+            div 
+                input(type="range" step="1" min="0" value="0")#timeline
+            div 
+                button#fullScreen Enter Full Screen
+
+    div.video__data
+        p.video__title=video.title
+        small.video__owner Uploaded by 
+            a(href=`/users/${video.owner._id}`)=video.owner.name 
+    if String(video.owner._id) === String(loggedInUser._id)
+        a(href=`${video.id}/edit`) Edit Video &rarr;
+        br
+        a(href=`${video.id}/delete`) Delete Video &rarr;
+    if locals.loggedIn
+        div.video__add-comments
+            form.video__comment-form#commentForm
+                textarea(name="" cols="30", rows="10" placeholder="write comments")
+                button Add Comment
+    div.video__comments
+        ul 
+            each comment in video.comments
+                li.video__comment
+                    span=comment.text 
+                    span(data-id=comment._id) ★
+
+block scripts 
+    script(src="/static/js/videoPlayer.js") 
+    script(src="/static/js/commentSection.js") 
